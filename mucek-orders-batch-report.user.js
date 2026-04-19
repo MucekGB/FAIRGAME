@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         [MCK] Orders Batch Report / Volume Predictor
 // @namespace    http://tampermonkey.net/
-// @version      9.0
+// @version      9.1
 // @description  Volume Predictor + Collation (Courier/NDTS/INT) with pill alignment fix. Adds Monday Courier & Sat Cou visible only on Saturdays. On Saturdays the column min-width is reduced so the grid doesn't spill. Collation (orders & items) follows Saturday formula when datepicker is Saturday: Courier + Courier Sunday - Depot 33 - Sale. STS/Sale brane z prawej karty aktywnego taba (kolumna ITEMS, nie %). Collation Courier: odejmuje Evri + Sale (Orders i Items) i kopiuje jako formuły (=Orig-Evri-Sale) otherwise.
 // @author       Mucek & Pak
 // @match        https://pon-wpws27/Whds.Dashboard.Web/reports/OrdersBatchReport*
@@ -106,8 +106,18 @@
           </div>
         </div>
         <div id="mucek-topbar-right">
+          <span class="mucek-tbtn-section-label">Volume Predictor</span>
+          <button class="mucek-copy-btn" id="mucek-copy-main" title="Kopiuj Volume Predictor">
+            <i class="fa-solid fa-copy"></i><span class="mucek-btn-label"> Kopiuj</span>
+          </button>
+          <div class="mucek-tbtn-divider"></div>
+          <span class="mucek-tbtn-section-label">Collation</span>
+          <button class="mucek-copy-btn" id="mucek-copy-collation" title="Kopiuj Collation">
+            <i class="fa-solid fa-copy"></i><span class="mucek-btn-label"> Kopiuj</span>
+          </button>
+          <div class="mucek-tbtn-divider"></div>
           <button id="mucek-refresh" title="Odśwież / Run">
-            <i class="fa-solid fa-rotate-right"></i><span class="mucek-tbtn-label">Odśwież</span>
+            <i class="fa-solid fa-rotate-right"></i><span class="mucek-tbtn-label"> Odśwież</span>
           </button>
           <button id="mucek-min" title="Minimalizuj">
             <i class="fa-solid fa-chevron-down"></i>
@@ -121,9 +131,6 @@
           <div class="mucek-panel mucek-panel-top" id="mucek-panel-volume">
             <div class="mucek-panel-header">
               <span class="mucek-panel-title"><i class="fa-solid fa-chart-bar" style="margin-right:5px;color:#e07b39;"></i>Volume Predictor</span>
-              <button class="mucek-copy-btn" id="mucek-copy-main" title="Kopiuj Volume Predictor">
-                <i class="fa-solid fa-copy"></i><span class="mucek-btn-label"> Kopiuj</span>
-              </button>
             </div>
             <div class="mucek-panel-body">
               <div id="mucek-cols-wrapper">${colHtml}</div>
@@ -134,9 +141,6 @@
           <div class="mucek-panel mucek-panel-bottom">
             <div class="mucek-panel-header">
               <span class="mucek-panel-title"><i class="fa-solid fa-layer-group" style="margin-right:5px;color:#e07b39;"></i>Collation</span>
-              <button class="mucek-copy-btn" id="mucek-copy-collation" title="Kopiuj Collation">
-                <i class="fa-solid fa-copy"></i><span class="mucek-btn-label"> Kopiuj</span>
-              </button>
             </div>
             <div class="mucek-panel-body">
               <div id="mucek-collation-cols">
@@ -361,6 +365,22 @@
       }
       #mucek-refresh.mucek-refreshing{ opacity:.7; transform: scale(.95); }
       .mucek-tbtn-label{ font-size:10px; }
+      .mucek-tbtn-section-label{
+        font-size: 9px;
+        font-weight: 800;
+        letter-spacing: .07em;
+        text-transform: uppercase;
+        color: rgba(180,180,180,.60);
+        white-space: nowrap;
+        flex-shrink: 0;
+      }
+      .mucek-tbtn-divider{
+        width: 1px;
+        height: 18px;
+        background: rgba(255,255,255,.12);
+        flex-shrink: 0;
+        margin: 0 2px;
+      }
 
       #mucek-min{
         display: inline-flex;
