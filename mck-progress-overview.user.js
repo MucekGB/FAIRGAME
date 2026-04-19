@@ -132,18 +132,15 @@
         return m ? m[0] : '0';
     }
 
-    // Extract the number that may appear as plain text OR inside parentheses,
-    // e.g. "1,234 (5,678)" → "5,678", "1,234" → "1,234".
-    // This is applied consistently to ALL bar-label fields (Packing, Int'l Packing,
-    // BPP, Picking) because the site uses parentheses for the "completed" sub-count
-    // in all of those rows.
-    function extractBarValue(raw) {
+    // Extract the number from a Packing / Int'l Packing bar-label.
+    // Those labels contain the completed count inside parentheses, e.g. "5,000 (3,120)".
+    // BPP and Picking labels show the number directly (no parentheses), so they
+    // keep using toNumberString() instead of this function.
+    function extractPackingValue(raw) {
         if (!raw) return '0';
         const s = String(raw).trim();
-        // Prefer the last number in parentheses (= completed count)
         const parenMatch = s.match(/\(([\d,]+)\)\s*$/);
         if (parenMatch) return parenMatch[1];
-        // Fall back to the first standalone number
         return toNumberString(s);
     }
 
@@ -240,14 +237,14 @@
         const packingRaw = progressEl.querySelector('#ProgRow-Totals_Packing-999999999 .bar-label')?.textContent?.trim()        || '0';
         const intlRaw    = progressEl.querySelector('#ProgRow-Totals_Int_l_Packing-999999999 .bar-label')?.textContent?.trim()  || '0';
 
-        const packing = extractBarValue(packingRaw);
-        const intl    = extractBarValue(intlRaw);
+        const packing = extractPackingValue(packingRaw);
+        const intl    = extractPackingValue(intlRaw);
         const packSum = (parseNumber(packing) + parseNumber(intl)).toLocaleString();
 
         return {
             pack: packSum,
-            bpp:  extractBarValue(bppRaw),
-            pick: extractBarValue(pickRaw)
+            bpp:  toNumberString(bppRaw),
+            pick: toNumberString(pickRaw)
         };
     }
 
