@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         [MCK] Orders Batch Report / Volume Predictor
 // @namespace    http://tampermonkey.net/
-// @version      8.9
+// @version      9.0
 // @description  Volume Predictor + Collation (Courier/NDTS/INT) with pill alignment fix. Adds Monday Courier & Sat Cou visible only on Saturdays. On Saturdays the column min-width is reduced so the grid doesn't spill. Collation (orders & items) follows Saturday formula when datepicker is Saturday: Courier + Courier Sunday - Depot 33 - Sale. STS/Sale brane z prawej karty aktywnego taba (kolumna ITEMS, nie %). Collation Courier: odejmuje Evri + Sale (Orders i Items) i kopiuje jako formuły (=Orig-Evri-Sale) otherwise.
 // @author       Mucek & Pak
 // @match        https://pon-wpws27/Whds.Dashboard.Web/reports/OrdersBatchReport*
@@ -96,34 +96,35 @@
     }).join('');
 
     bar.innerHTML = `
+      <div id="mucek-topbar">
+        <div id="mucek-topbar-left">
+          <div class="mucek-brand-dot"></div>
+          <span class="mucek-topbar-title">MCK <span class="mucek-topbar-accent">STATYSTYKI</span></span>
+          <div class="mucek-legend" title="Niebieskie kolumny pokazują wartość przed odliczeniem">
+            <i class="fa-solid fa-circle-info mucek-legend-ico"></i>
+            <span class="mucek-legend-text">Niebieskie = wartość oryginalna (przed odliczeniem)</span>
+          </div>
+        </div>
+        <div id="mucek-topbar-right">
+          <button id="mucek-refresh" title="Odśwież / Run">
+            <i class="fa-solid fa-rotate-right"></i><span class="mucek-tbtn-label">Odśwież</span>
+          </button>
+          <button id="mucek-min" title="Minimalizuj">
+            <i class="fa-solid fa-chevron-down"></i>
+          </button>
+        </div>
+      </div>
+
       <div id="mucek-bottom-bar-inner">
 
         <div id="mucek-panels">
           <div class="mucek-panel mucek-panel-top" id="mucek-panel-volume">
             <div class="mucek-panel-header">
-              <div style="display:flex;align-items:center;gap:10px;min-width:0;flex:1 1 auto;overflow:hidden;">
-                <span class="mucek-panel-title">Volume Predictor</span>
-
-                <div class="mucek-legend" title="Legend">
-                  <i class="fa-solid fa-circle-info mucek-legend-ico"></i>
-                  <span class="mucek-legend-text">
-                    These blue columns show the original value (before subtraction)</span>
-                </div>
-              </div>
-
-              <div class="mucek-header-controls">
-                <button class="mucek-copy-btn" id="mucek-copy-main" title="Copy Volume Predictor">
-                  <i class="fa-solid fa-copy"></i><span class="mucek-btn-label"> Copy</span>
-                </button>
-                <button id="mucek-refresh" title="Refresh">
-                  <i class="fa-solid fa-rotate-right"></i>
-                </button>
-                <button id="mucek-min" title="Minimize">
-                  <i class="fa-solid fa-chevron-down"></i>
-                </button>
-              </div>
+              <span class="mucek-panel-title"><i class="fa-solid fa-chart-bar" style="margin-right:5px;color:#e07b39;"></i>Volume Predictor</span>
+              <button class="mucek-copy-btn" id="mucek-copy-main" title="Kopiuj Volume Predictor">
+                <i class="fa-solid fa-copy"></i><span class="mucek-btn-label"> Kopiuj</span>
+              </button>
             </div>
-
             <div class="mucek-panel-body">
               <div id="mucek-cols-wrapper">${colHtml}</div>
               <div id="mucek-detail-grid">${detailHtml}</div>
@@ -132,9 +133,9 @@
 
           <div class="mucek-panel mucek-panel-bottom">
             <div class="mucek-panel-header">
-              <span class="mucek-panel-title">Collation</span>
-              <button class="mucek-copy-btn" id="mucek-copy-collation" title="Copy Collation">
-                <i class="fa-solid fa-copy"></i><span class="mucek-btn-label"> Copy</span>
+              <span class="mucek-panel-title"><i class="fa-solid fa-layer-group" style="margin-right:5px;color:#e07b39;"></i>Collation</span>
+              <button class="mucek-copy-btn" id="mucek-copy-collation" title="Kopiuj Collation">
+                <i class="fa-solid fa-copy"></i><span class="mucek-btn-label"> Kopiuj</span>
               </button>
             </div>
             <div class="mucek-panel-body">
@@ -199,29 +200,27 @@
           </div>
         </div>
 
-        <div id="mucek-mini">
-          <div class="mucek-mini-block">
-            <div class="mucek-mini-title">Volume Predictor</div>
-            <button class="mucek-copy-btn mucek-mini-copy" id="mucek-mini-copy-main" title="Copy Volume Predictor">
-              <i class="fa-solid fa-copy"></i><span class="mucek-btn-label"> Copy</span>
-            </button>
-          </div>
+      </div>
 
-          <div class="mucek-mini-block">
-            <div class="mucek-mini-title">Collation</div>
-            <button class="mucek-copy-btn mucek-mini-copy" id="mucek-mini-copy-collation" title="Copy Collation">
-              <i class="fa-solid fa-copy"></i><span class="mucek-btn-label"> Copy</span>
-            </button>
-          </div>
-
-          <button id="mucek-mini-refresh" title="Refresh">
-            <i class="fa-solid fa-rotate-right"></i>
-          </button>
-          <button id="mucek-mini-min" title="Expand">
-            <i class="fa-solid fa-chevron-up"></i>
+      <div id="mucek-mini">
+        <div class="mucek-mini-block">
+          <div class="mucek-mini-title">Volume Predictor</div>
+          <button class="mucek-copy-btn mucek-mini-copy" id="mucek-mini-copy-main" title="Kopiuj Volume Predictor">
+            <i class="fa-solid fa-copy"></i><span class="mucek-btn-label"> Kopiuj</span>
           </button>
         </div>
-
+        <div class="mucek-mini-block">
+          <div class="mucek-mini-title">Collation</div>
+          <button class="mucek-copy-btn mucek-mini-copy" id="mucek-mini-copy-collation" title="Kopiuj Collation">
+            <i class="fa-solid fa-copy"></i><span class="mucek-btn-label"> Kopiuj</span>
+          </button>
+        </div>
+        <button id="mucek-mini-refresh" title="Odśwież">
+          <i class="fa-solid fa-rotate-right"></i>
+        </button>
+        <button id="mucek-mini-min" title="Rozwiń">
+          <i class="fa-solid fa-chevron-up"></i>
+        </button>
       </div>
     `;
 
@@ -232,302 +231,466 @@
     style.textContent = `
       :root{
         --mucek-col-min: 80px;
-        --mucek-gap: 6px;
+        --mucek-gap: 5px;
         --mucek-grid: repeat(auto-fit, minmax(var(--mucek-col-min), 1fr));
+        --mucek-orange: #e07b39;
+        --mucek-orange-dim: rgba(224,123,57,.18);
+        --mucek-orange-border: rgba(224,123,57,.45);
+        --mucek-bg: #141414;
+        --mucek-panel-bg: #1a1a1a;
+        --mucek-card-bg: #111111;
+        --mucek-border: rgba(255,255,255,.07);
+        --mucek-topbar-h: 38px;
       }
 
-      /* Saturday mode reduces the min column width so the grid fits on one row */
       #mucek-cols-wrapper.mucek-saturday,
       #mucek-detail-grid.mucek-saturday {
         --mucek-col-min: 60px;
       }
 
+      /* ===== OUTER BAR ===== */
       #mucek-bottom-bar{
-        position:fixed;bottom:0;left:0;right:0;
-        background:#202020;color:#fff;font-family:Arial,sans-serif;
-        padding:6px 10px 8px;font-size:11px;z-index:9999999;
-        box-shadow:0 -3px 10px rgba(0,0,0,.7);
-        border-radius:12px 12px 0 0
-      }
-      #mucek-bottom-bar-inner{
-        display:flex;align-items:stretch;justify-content:space-between;
-        gap:10px;width:100%
-      }
-
-      #mucek-panels{display:flex;flex-direction:column;gap:6px;flex:1 1 auto;min-width:0}
-      .mucek-panel{border-radius:16px;padding:6px 10px 8px;box-shadow:0 2px 4px rgba(0,0,0,.35);display:flex;flex-direction:column;gap:4px;background:#111}
-      .mucek-panel-header{display:flex;align-items:center;justify-content:space-between;gap:10px}
-      .mucek-panel-title{font-weight:700;font-size:12px;letter-spacing:.04em;text-transform:uppercase;opacity:.95;white-space:nowrap}
-
-      /* Controls group inside panel header */
-      .mucek-header-controls{
-        display:flex;
-        align-items:center;
-        gap:6px;
-        flex-shrink:0;
+        position: fixed;
+        bottom: 0; left: 0; right: 0;
+        background: var(--mucek-bg);
+        color: #e8e8e8;
+        font-family: 'Arial', sans-serif;
+        font-size: 11px;
+        z-index: 9999999;
+        box-shadow: 0 -4px 24px rgba(0,0,0,.85), 0 -1px 0 var(--mucek-orange-border);
+        border-top: 2px solid var(--mucek-orange);
+        border-radius: 0;
+        padding: 0;
+        overflow: hidden;
       }
 
+      /* ===== TOP BAR (title + refresh + minimize) ===== */
+      #mucek-topbar{
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        height: var(--mucek-topbar-h);
+        padding: 0 12px;
+        background: linear-gradient(90deg, #1e1e1e 0%, #1a1a1a 60%, #181818 100%);
+        border-bottom: 1px solid rgba(224,123,57,.30);
+        gap: 12px;
+        flex-shrink: 0;
+      }
+      #mucek-topbar-left{
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        min-width: 0;
+        flex: 1 1 auto;
+        overflow: hidden;
+      }
+      .mucek-brand-dot{
+        width: 8px; height: 8px;
+        border-radius: 50%;
+        background: var(--mucek-orange);
+        box-shadow: 0 0 8px rgba(224,123,57,.7);
+        flex-shrink: 0;
+      }
+      .mucek-topbar-title{
+        font-size: 12px;
+        font-weight: 900;
+        letter-spacing: .10em;
+        text-transform: uppercase;
+        color: #ccc;
+        white-space: nowrap;
+        flex-shrink: 0;
+      }
+      .mucek-topbar-accent{
+        color: var(--mucek-orange);
+        letter-spacing: .08em;
+      }
       .mucek-legend{
-        display:flex;
-        align-items:center;
-        gap:8px;
-        min-width:0;
-        padding:2px 8px;
-        border-radius:10px;
-        background: rgba(255, 255, 255, 0.06);
-        border: 1px solid rgba(255, 255, 255, 0.18);
-        box-shadow:0 1px 3px rgba(0,0,0,.35);
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        min-width: 0;
+        padding: 2px 8px;
+        border-radius: 6px;
+        background: rgba(255,255,255,.04);
+        border: 1px solid rgba(255,255,255,.10);
       }
       .mucek-legend-ico{
-        color: rgba(235, 235, 235, 0.88);
-        opacity: .95;
-        font-size: 12px;
-        transform: translateY(0.5px);
-        flex:0 0 auto;
+        color: var(--mucek-orange);
+        font-size: 11px;
+        flex: 0 0 auto;
       }
       .mucek-legend-text{
-        font-size:10px;
-        font-weight:700;
-        color: rgba(235, 235, 235, 0.92);
-        white-space:nowrap;
-        overflow:hidden;
-        text-overflow:ellipsis;
-        max-width:520px;
+        font-size: 10px;
+        font-weight: 600;
+        color: rgba(200,200,200,.85);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      #mucek-topbar-right{
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        flex-shrink: 0;
       }
 
+      /* ===== TOPBAR BUTTONS (Refresh, Minimize) ===== */
+      #mucek-refresh{
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        height: 26px;
+        padding: 0 10px;
+        border: 1px solid var(--mucek-orange-border);
+        border-radius: 5px;
+        background: var(--mucek-orange-dim);
+        color: var(--mucek-orange);
+        font-size: 11px;
+        font-weight: 700;
+        cursor: pointer;
+        letter-spacing: .04em;
+        text-transform: uppercase;
+        transition: background .15s, border-color .15s, color .15s, transform .1s;
+        flex-shrink: 0;
+      }
+      #mucek-refresh:hover{
+        background: rgba(224,123,57,.32);
+        border-color: var(--mucek-orange);
+        color: #fff;
+        transform: translateY(-1px);
+      }
+      #mucek-refresh.mucek-refreshing{ opacity:.7; transform: scale(.95); }
+      .mucek-tbtn-label{ font-size:10px; }
+
+      #mucek-min{
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 26px; height: 26px;
+        border: 1px solid rgba(255,255,255,.12);
+        border-radius: 5px;
+        background: rgba(255,255,255,.05);
+        color: #aaa;
+        font-size: 11px;
+        cursor: pointer;
+        transition: background .15s, color .15s, transform .1s;
+        flex-shrink: 0;
+      }
+      #mucek-min:hover{ background: rgba(255,255,255,.10); color: #fff; transform: translateY(-1px); }
+      #mucek-min:active{ transform: translateY(0); }
+
+      /* ===== CONTENT AREA ===== */
+      #mucek-bottom-bar-inner{
+        display: flex;
+        flex-direction: column;
+        gap: 0;
+        padding: 8px 10px 8px;
+        width: 100%;
+        box-sizing: border-box;
+      }
+
+      #mucek-panels{ display:flex; flex-direction:column; gap:6px; flex:1 1 auto; min-width:0; }
+
+      /* ===== PANELS ===== */
+      .mucek-panel{
+        background: var(--mucek-panel-bg);
+        border: 1px solid var(--mucek-border);
+        border-radius: 8px;
+        padding: 6px 8px 8px;
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+      }
+      .mucek-panel-top{ border-left: 2px solid var(--mucek-orange); }
+      .mucek-panel-bottom{ border-left: 2px solid rgba(56,189,248,.55); }
+
+      .mucek-panel-header{
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+        padding-bottom: 5px;
+        border-bottom: 1px solid rgba(255,255,255,.06);
+        margin-bottom: 2px;
+      }
+      .mucek-panel-title{
+        font-weight: 800;
+        font-size: 10.5px;
+        letter-spacing: .08em;
+        text-transform: uppercase;
+        color: #ccc;
+        white-space: nowrap;
+      }
+
+      /* ===== COPY BUTTON ===== */
       .mucek-copy-btn{
-        border:none;
-        border-radius:10px;
-        padding:5px 10px;
-        font-size:11px;
-        font-weight:700;
-        cursor:pointer;
-        background:#22c55e;
-        color:#fff;
-        box-shadow:0 1px 3px rgba(0,0,0,.4);
-        display:inline-flex;
-        align-items:center;
-        gap:6px;
-        transition:background .15s ease,transform .1s ease,box-shadow .15s ease;
-        flex:0 0 auto;
+        border: 1px solid rgba(34,197,94,.40);
+        border-radius: 5px;
+        padding: 3px 9px;
+        font-size: 10px;
+        font-weight: 700;
+        cursor: pointer;
+        background: rgba(34,197,94,.12);
+        color: #22c55e;
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        transition: background .15s, border-color .15s, color .15s, transform .1s;
+        flex: 0 0 auto;
+        letter-spacing: .04em;
+        text-transform: uppercase;
       }
-      .mucek-copy-btn:hover{background:#16a34a;transform:translateY(-1px);box-shadow:0 2px 5px rgba(0,0,0,.5)}
-      .mucek-copy-btn:active{transform:translateY(0);box-shadow:0 1px 2px rgba(0,0,0,.4)}
-      .mucek-copy-btn.mucek-copied{background:#15803d}
+      .mucek-copy-btn:hover{
+        background: rgba(34,197,94,.28);
+        border-color: #22c55e;
+        color: #fff;
+        transform: translateY(-1px);
+      }
+      .mucek-copy-btn:active{ transform: translateY(0); }
+      .mucek-copy-btn.mucek-copied{
+        background: rgba(21,128,61,.25);
+        border-color: #15803d;
+        color: #86efac;
+      }
 
+      /* ===== COLUMN GRID ===== */
       #mucek-cols-wrapper{
-        display:grid;
+        display: grid;
         grid-template-columns: var(--mucek-grid);
         gap: var(--mucek-gap);
-        align-items:stretch;
+        align-items: stretch;
         overflow-x: auto;
       }
       #mucek-detail-grid{
-        display:grid;
+        display: grid;
         grid-template-columns: var(--mucek-grid);
         gap: var(--mucek-gap);
-        margin-top:6px;
-        align-items:stretch;
+        margin-top: 5px;
+        align-items: stretch;
       }
 
-      .mucek-col{border:1px solid rgba(255,255,255,.08);background:#181818;border-radius:8px;padding:4px 6px;min-width:0}
-      .mucek-col-name{font-weight:700;font-size:11px;text-align:center;border-bottom:1px solid rgba(255,255,255,.15);margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-      .mucek-col-value{font-size:11px;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+      /* ===== COLUMN CARD ===== */
+      .mucek-col{
+        background: var(--mucek-card-bg);
+        border: 1px solid var(--mucek-border);
+        border-top: 1px solid rgba(255,255,255,.10);
+        border-radius: 6px;
+        padding: 5px 5px 6px;
+        min-width: 0;
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-start;
+        align-items: stretch;
+        box-sizing: border-box;
+      }
+      .mucek-col-name{
+        font-weight: 700;
+        font-size: 9.5px;
+        text-align: center;
+        letter-spacing: .05em;
+        text-transform: uppercase;
+        color: rgba(180,180,180,.80);
+        border-bottom: 1px solid rgba(255,255,255,.07);
+        padding-bottom: 3px;
+        margin-bottom: 3px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      .mucek-col-value{
+        font-size: 12px;
+        font-weight: 800;
+        text-align: center;
+        color: #e8e8e8;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        letter-spacing: .02em;
+      }
 
-      .mucek-detail-spacer{min-height:44px}
+      /* ===== DETAIL BOX ===== */
+      .mucek-detail-spacer{ min-height: 44px; }
       .mucek-detail-box{
-        min-height:44px;
-        padding:4px 6px;
-        border-radius:10px;
-        background:#141414;
-        border:1px solid rgba(255,255,255,.10);
-        box-shadow:0 2px 4px rgba(0,0,0,.35);
-        font-size:10px;
-        font-weight:700;
-        line-height:1.2;
-        text-align:center;
-        overflow:hidden;
-        display:flex;
-        flex-direction:column;
-        justify-content:center;
-        min-width:0;
+        min-height: 44px;
+        padding: 4px 5px;
+        border-radius: 6px;
+        background: #0d0d0d;
+        border: 1px solid rgba(255,255,255,.06);
+        border-top: 1px solid rgba(255,255,255,.10);
+        font-size: 9.5px;
+        font-weight: 700;
+        line-height: 1.3;
+        text-align: center;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-start;
+        align-items: stretch;
+        box-sizing: border-box;
+        min-width: 0;
       }
 
+      /* ===== BADGE ===== */
       .mucek-badge-blue{
-        align-self: center;
-        display:inline-block;
-        margin-top:2px;
-        padding:1px 7px;
-        border-radius:6px;
-        background: rgba(14, 165, 233, 0.12);
-        border: 1px solid rgba(14, 165, 233, 0.45);
+        display: inline-flex;
+        margin: 2px auto 0;
+        padding: 1px 6px;
+        border-radius: 4px;
+        background: rgba(14,165,233,.10);
+        border: 1px solid rgba(14,165,233,.38);
         color: #38BDF8;
         font-weight: 800;
-        font-size: 10.5px;
-        line-height: 1.15;
-        text-shadow: 0 0 6px rgba(56, 189, 248, 0.20);
-        display: inline-flex;
-        margin: 0 auto;
+        font-size: 10px;
+        line-height: 1.2;
         justify-content: center;
         text-align: center;
       }
 
-      #mucek-collation-cols{display:flex;flex-wrap:nowrap;gap:8px}
-      .mucek-coll-group{flex:1 1 0;background:#181818;border-radius:10px;padding:4px 6px 6px;border:1px solid #333;display:flex;flex-direction:column;gap:3px}
-      .mucek-coll-group-title{font-size:11px;font-weight:700;text-align:center;border-bottom:1px solid #333;padding-bottom:2px}
-      .mucek-coll-cells{display:flex;gap:4px;margin-top:2px}
-      .mucek-coll-cell{flex:1 1 0;background:#202020;border-radius:6px;padding:2px 3px 3px;border:1px solid #333;display:flex;flex-direction:column;gap:1px;font-size:10px}
-      .mucek-coll-label{opacity:.8;text-align:center}
-      .mucek-coll-value{font-weight:600;text-align:center;font-size:11px}
-
-      /* Refresh & Minimize buttons — live in the panel header */
-      #mucek-refresh{
-        height:30px;width:30px;border-radius:8px;border:none;cursor:pointer;
-        background:#0ea5e9;color:#fff;font-size:14px;
-        box-shadow:0 2px 4px rgba(0,0,0,.5);
-        display:flex;align-items:center;justify-content:center;
-        transition:background .15s ease,transform .1s ease,box-shadow .15s ease;
-        flex-shrink:0;
+      /* ===== COLLATION SECTION ===== */
+      #mucek-collation-cols{ display:flex; flex-wrap:nowrap; gap:7px; }
+      .mucek-coll-group{
+        flex: 1 1 0;
+        background: var(--mucek-card-bg);
+        border-radius: 6px;
+        padding: 4px 6px 6px;
+        border: 1px solid var(--mucek-border);
+        border-top: 1px solid rgba(56,189,248,.25);
+        display: flex;
+        flex-direction: column;
+        gap: 3px;
       }
-      #mucek-refresh:hover{background:#0284c7;transform:translateY(-1px);box-shadow:0 3px 6px rgba(0,0,0,.7)}
-      #mucek-refresh.mucek-refreshing{transform:scale(.92)}
-
-      #mucek-min{
-        height:30px;width:30px;border-radius:8px;border:none;cursor:pointer;
-        background:#2a2a2a;color:#eee;font-size:13px;
-        box-shadow:0 2px 4px rgba(0,0,0,.5);
-        display:flex;align-items:center;justify-content:center;
-        transition:background .15s ease,transform .1s ease,box-shadow .15s ease;
-        flex-shrink:0;
+      .mucek-coll-group-title{
+        font-size: 10px;
+        font-weight: 800;
+        text-align: center;
+        letter-spacing: .08em;
+        text-transform: uppercase;
+        color: #38BDF8;
+        border-bottom: 1px solid rgba(56,189,248,.18);
+        padding-bottom: 2px;
       }
-      #mucek-min:hover{background:#3a3a3a;transform:translateY(-1px);box-shadow:0 3px 6px rgba(0,0,0,.7)}
-      #mucek-min:active{transform:translateY(0)}
-
-      /* Mini bar (collapsed state) */
-      #mucek-mini{
-        display:none;
-        flex:1 1 auto;
-        align-items:center;
-        justify-content:center;
-        gap:10px;
-        min-width:0;
+      .mucek-coll-cells{ display:flex; gap:4px; margin-top:2px; }
+      .mucek-coll-cell{
+        flex: 1 1 0;
+        background: #0d0d0d;
+        border-radius: 5px;
+        padding: 2px 3px 3px;
+        border: 1px solid rgba(255,255,255,.06);
+        display: flex;
+        flex-direction: column;
+        gap: 1px;
+        font-size: 10px;
+        box-sizing: border-box;
+        justify-content: flex-start;
+        align-items: stretch;
       }
-      .mucek-mini-block{
-        display:flex;
-        align-items:center;
-        justify-content:space-between;
-        gap:10px;
-        padding:4px 10px;
-        min-width:240px;
-        background:#1a1a1a;
-        border:1px solid rgba(255,255,255,.10);
-        border-radius:10px;
-        box-shadow:none;
+      .mucek-coll-label{
+        font-size: 9px;
+        font-weight: 700;
+        letter-spacing: .05em;
+        text-transform: uppercase;
+        opacity: .55;
+        text-align: center;
       }
-      .mucek-mini-title{
-        font-weight:900;
-        font-size:11px;
-        letter-spacing:.04em;
-        text-transform:uppercase;
-        opacity:.95;
-        white-space:nowrap;
-        line-height:1;
-      }
-      .mucek-mini-copy{
-        height:30px;
-        padding:0 10px;
-        border-radius:10px;
-        font-size:10.5px;
-        box-shadow:none;
+      .mucek-coll-value{
+        font-weight: 700;
+        text-align: center;
+        font-size: 11px;
+        color: #e8e8e8;
       }
 
-      /* Mini refresh & minimize buttons (visible only when collapsed) */
-      #mucek-mini-refresh,
-      #mucek-mini-min{
-        height:34px;width:34px;border-radius:10px;border:none;cursor:pointer;
-        font-size:14px;
-        box-shadow:none;
-        display:flex;align-items:center;justify-content:center;
-        flex-shrink:0;
-      }
-      #mucek-mini-refresh{background:#0ea5e9;color:#fff;}
-      #mucek-mini-refresh:hover{background:#0284c7}
-      #mucek-mini-min{background:#2a2a2a;color:#eee;}
-      #mucek-mini-min:hover{background:#3a3a3a}
-
-      /* Collapsed state */
-      #mucek-bottom-bar.mucek-collapsed{padding:4px 8px;height:44px;overflow:hidden}
-      #mucek-bottom-bar.mucek-collapsed #mucek-panels{display:none}
-      #mucek-bottom-bar.mucek-collapsed #mucek-mini{display:flex}
-
-      /* ensure hidden columns do not leave visible gaps in grid */
-      .mucek-col[style*="display: none"] { display: none !important; }
-      .mucek-detail-box[style*="display: none"] { display: none !important; }
-
-      /* Highlight STS and Sale columns */
+      /* ===== COLUMN HIGHLIGHT: STS & Sale (orange/gold) ===== */
       .mucek-col:has(.mucek-col-value[data-mucek-name="STS"]),
       .mucek-col:has(.mucek-col-value[data-mucek-name="Sale"]) {
-        background: rgba(252, 211, 77, 0.10);
-        border-color: rgba(252, 211, 77, 0.45);
+        background: rgba(224,123,57,.08);
+        border-color: var(--mucek-orange-border);
+        border-top-color: rgba(224,123,57,.50);
       }
       .mucek-col-value[data-mucek-name="STS"],
       .mucek-col-value[data-mucek-name="Sale"] {
-        color: #FCD34D;
-        font-weight: 800;
-        text-shadow: 0 0 6px rgba(252, 211, 77, 0.25);
+        color: #f5a050;
+        text-shadow: 0 0 8px rgba(224,123,57,.35);
       }
 
-      /* Online brand columns */
+      /* ===== COLUMN HIGHLIGHT: online brands (muted white) ===== */
       .mucek-col:has(.mucek-col-value[data-mucek-name="GAP online"]),
       .mucek-col:has(.mucek-col-value[data-mucek-name="Joules online"]),
       .mucek-col:has(.mucek-col-value[data-mucek-name="JMB online"]),
       .mucek-col:has(.mucek-col-value[data-mucek-name="VS online"]),
       .mucek-col:has(.mucek-col-value[data-mucek-name="Fat Face Online"]) {
-        background: rgba(255, 255, 255, 0.06);
-        border-color: rgba(255, 255, 255, 0.22);
+        background: rgba(255,255,255,.04);
+        border-color: rgba(255,255,255,.14);
       }
       .mucek-col-value[data-mucek-name="GAP online"],
       .mucek-col-value[data-mucek-name="Joules online"],
       .mucek-col-value[data-mucek-name="JMB online"],
       .mucek-col-value[data-mucek-name="VS online"],
       .mucek-col-value[data-mucek-name="Fat Face Online"] {
-        color: rgba(235, 235, 235, 0.95);
-        font-weight: 800;
-        text-shadow: 0 0 6px rgba(255, 255, 255, 0.12);
+        color: rgba(230,230,230,.90);
       }
 
-      /* === PILL ALIGNMENT FIX ===
-         Force all pill-like boxes to top-align and grow downwards so first and second rows line up.
-      */
-      #mucek-cols-wrapper .mucek-col,
-      #mucek-detail-grid .mucek-detail-box,
-      .mucek-coll-cell {
-        display: flex !important;
-        flex-direction: column !important;
-        justify-content: flex-start !important;
-        align-items: stretch !important;
-        box-sizing: border-box !important;
-      }
+      /* ensure hidden columns do not leave gaps */
+      .mucek-col[style*="display: none"] { display: none !important; }
+      .mucek-detail-box[style*="display: none"] { display: none !important; }
 
+      /* Alignment fix */
       #mucek-cols-wrapper .mucek-col .mucek-col-name,
-      #mucek-cols-wrapper .mucek-col .mucek-col-value {
-        align-self: stretch;
+      #mucek-cols-wrapper .mucek-col .mucek-col-value { align-self: stretch; }
+      .mucek-detail-box { align-items: stretch; justify-content: flex-start; }
+      .mucek-subline, .mucek-subline-wrap, .mucek-badge-blue {
+        display: inline-flex; align-self: flex-start; margin-top: 3px;
       }
 
-      .mucek-detail-box {
-        align-items: stretch;
-        justify-content: flex-start;
+      /* ===== COLLAPSED STATE ===== */
+      #mucek-bottom-bar.mucek-collapsed #mucek-bottom-bar-inner { display: none; }
+      #mucek-bottom-bar.mucek-collapsed #mucek-mini { display: flex; }
+      #mucek-bottom-bar.mucek-collapsed #mucek-topbar{
+        border-bottom: none;
       }
 
-      .mucek-subline,
-      .mucek-subline-wrap,
-      .mucek-badge-blue {
-        display: inline-flex;
-        align-self: flex-start;
-        margin-top: 4px;
+      /* ===== MINI BAR (shown when collapsed) ===== */
+      #mucek-mini{
+        display: none;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        padding: 5px 10px;
+        min-width: 0;
+        background: var(--mucek-bg);
+        border-top: 1px solid rgba(255,255,255,.06);
       }
+      .mucek-mini-block{
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 3px 10px;
+        background: #1a1a1a;
+        border: 1px solid rgba(255,255,255,.08);
+        border-radius: 6px;
+      }
+      .mucek-mini-title{
+        font-weight: 800;
+        font-size: 10px;
+        letter-spacing: .06em;
+        text-transform: uppercase;
+        color: #aaa;
+        white-space: nowrap;
+      }
+      .mucek-mini-copy{ height: 26px; padding: 0 9px; font-size: 10px; border-radius: 5px; }
 
-      .mucek-col { padding-top: 6px; padding-bottom: 6px; }
+      #mucek-mini-refresh,
+      #mucek-mini-min{
+        height: 28px; width: 28px;
+        border-radius: 5px; border: none; cursor: pointer;
+        font-size: 12px;
+        display: flex; align-items: center; justify-content: center;
+        flex-shrink: 0;
+        transition: background .15s, transform .1s;
+      }
+      #mucek-mini-refresh{ background: var(--mucek-orange-dim); border: 1px solid var(--mucek-orange-border); color: var(--mucek-orange); }
+      #mucek-mini-refresh:hover{ background: rgba(224,123,57,.28); color: #fff; }
+      #mucek-mini-min{ background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.10); color: #aaa; }
+      #mucek-mini-min:hover{ background: rgba(255,255,255,.10); color: #fff; }
     `;
     document.head.appendChild(style);
 
