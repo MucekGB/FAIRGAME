@@ -132,27 +132,6 @@
         return m ? m[0] : '0';
     }
 
-    // Extract the number from a Packing / Int'l Packing bar-label.
-    // Those labels contain the completed count inside parentheses, e.g. "5,000 (3,120)".
-    function extractPackingValue(raw) {
-        if (!raw) return '0';
-        const s = String(raw).trim();
-        const parenMatch = s.match(/\(([\d,]+)\)\s*$/);
-        if (parenMatch) return parenMatch[1];
-        return toNumberString(s);
-    }
-
-    // Extract the number from a BPP / Picking bar-label, explicitly ignoring any
-    // parenthesised sub-value.  The regex in toNumberString() grabs the first digit
-    // sequence, which can accidentally land inside parentheses when the label text
-    // starts with "(NNN)" or has no leading plain number.  Stripping parentheses
-    // first guarantees we never read from them.
-    function extractDirectValue(raw) {
-        if (!raw) return '0';
-        // Remove every "(…)" group, then take the first remaining number.
-        const stripped = String(raw).replace(/\([^)]*\)/g, '').trim();
-        return toNumberString(stripped);
-    }
 
     function parseNumber(value) {
         return parseInt(String(value).replace(/,/g, ''), 10) || 0;
@@ -235,26 +214,31 @@
         return ids.map(sel => progressEl.querySelector(sel)?.textContent?.trim() || '').join('|');
     }
 
-    // PACK  = Packing completed + Int'l Packing completed
-    // BPP   = BPP completed
-    // PICK  = Picking completed
-    // All three use extractBarValue() so parenthesised and plain formats both work.
+    // PACK = Packing (z nawiasow) + Int'l Packing (pierwsza liczba)
+    // BPP  = pierwsza liczba
+    // PICK = pierwsza liczba
+    // Dokladnie ta sama logika co w oryginalnym v2.1.
     function extractValuesFromProgress(progressEl) {
         if (!progressEl) return zeroRow();
 
-        const pickRaw    = progressEl.querySelector('#ProgRow-Totals_Picking-999999999 .bar-label')?.textContent?.trim()        || '0';
-        const bppRaw     = progressEl.querySelector('#ProgRow-Totals_BPP-999999999 .bar-label')?.textContent?.trim()            || '0';
-        const packingRaw = progressEl.querySelector('#ProgRow-Totals_Packing-999999999 .bar-label')?.textContent?.trim()        || '0';
-        const intlRaw    = progressEl.querySelector('#ProgRow-Totals_Int_l_Packing-999999999 .bar-label')?.textContent?.trim()  || '0';
+        const pickRaw = progressEl.querySelector('#ProgRow-Totals_Picking-999999999 .bar-label')?.textContent?.trim() || '0';
+        const bppRaw  = progressEl.querySelector('#ProgRow-Totals_BPP-999999999 .bar-label')?.textContent?.trim() || '0';
 
-        const packing = extractPackingValue(packingRaw);
-        const intl    = extractPackingValue(intlRaw);
+        const packingRaw = progressEl.querySelector('#ProgRow-Totals_Packing-999999999 .bar-label')?.textContent?.trim() || '0';
+        let packing = '0';
+        const pm = packingRaw.match(/\(([\d,]+)\)/);
+        if (pm) packing = pm[1];
+        else packing = toNumberString(packingRaw);
+
+        const intlRaw = progressEl.querySelector('#ProgRow-Totals_Int_l_Packing-999999999 .bar-label')?.textContent?.trim() || '0';
+        const intl = toNumberString(intlRaw);
+
         const packSum = (parseNumber(packing) + parseNumber(intl)).toLocaleString();
 
         return {
             pack: packSum,
-            bpp:  extractDirectValue(bppRaw),
-            pick: extractDirectValue(pickRaw)
+            bpp:  toNumberString(bppRaw),
+            pick: toNumberString(pickRaw)
         };
     }
 
