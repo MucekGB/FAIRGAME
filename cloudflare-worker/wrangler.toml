@@ -1,0 +1,13 @@
+# Plik konfiguracyjny dla Wrangler CLI (opcjonalne — możesz wdrożyć przez dashboard bez tego)
+name       = "mck-progress-bridge"
+main       = "worker.js"
+compatibility_date = "2024-01-01"
+
+# KV Namespace — po utworzeniu KV w dashboardzie wklej ID poniżej
+[[kv_namespaces]]
+binding = "PROGRESS_KV"
+id      = "WKLEJ_KV_ID_TUTAJ"
+
+# Opcjonalne zabezpieczenie tokenem
+# [vars]
+# SECRET = "twoj_tajny_token"
