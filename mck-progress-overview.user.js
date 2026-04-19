@@ -134,14 +134,24 @@
 
     // Extract the number from a Packing / Int'l Packing bar-label.
     // Those labels contain the completed count inside parentheses, e.g. "5,000 (3,120)".
-    // BPP and Picking labels show the number directly (no parentheses), so they
-    // keep using toNumberString() instead of this function.
     function extractPackingValue(raw) {
         if (!raw) return '0';
         const s = String(raw).trim();
         const parenMatch = s.match(/\(([\d,]+)\)\s*$/);
         if (parenMatch) return parenMatch[1];
         return toNumberString(s);
+    }
+
+    // Extract the number from a BPP / Picking bar-label, explicitly ignoring any
+    // parenthesised sub-value.  The regex in toNumberString() grabs the first digit
+    // sequence, which can accidentally land inside parentheses when the label text
+    // starts with "(NNN)" or has no leading plain number.  Stripping parentheses
+    // first guarantees we never read from them.
+    function extractDirectValue(raw) {
+        if (!raw) return '0';
+        // Remove every "(…)" group, then take the first remaining number.
+        const stripped = String(raw).replace(/\([^)]*\)/g, '').trim();
+        return toNumberString(stripped);
     }
 
     function parseNumber(value) {
@@ -243,8 +253,8 @@
 
         return {
             pack: packSum,
-            bpp:  toNumberString(bppRaw),
-            pick: toNumberString(pickRaw)
+            bpp:  extractDirectValue(bppRaw),
+            pick: extractDirectValue(pickRaw)
         };
     }
 
