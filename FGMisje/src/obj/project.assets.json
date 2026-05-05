@@ -2683,11 +2683,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "/workspace/CS2MissionsPlugin/src/CS2MissionsPlugin.csproj",
-      "projectName": "CS2MissionsPlugin",
-      "projectPath": "/workspace/CS2MissionsPlugin/src/CS2MissionsPlugin.csproj",
+      "projectUniqueName": "/workspace/FGMisje/src/FGMisje.csproj",
+      "projectName": "FGMisje",
+      "projectPath": "/workspace/FGMisje/src/FGMisje.csproj",
       "packagesPath": "/root/.nuget/packages/",
-      "outputPath": "/workspace/CS2MissionsPlugin/src/obj/",
+      "outputPath": "/workspace/FGMisje/src/obj/",
       "projectStyle": "PackageReference",
       "configFilePaths": [
         "/root/.nuget/NuGet/NuGet.Config"

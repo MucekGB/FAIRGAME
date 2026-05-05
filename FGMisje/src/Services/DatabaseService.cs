@@ -1,9 +1,9 @@
 using System.Data;
-using CS2MissionsPlugin.Models;
+using FGMisje.Models;
 using Dapper;
 using MySqlConnector;
 
-namespace CS2MissionsPlugin.Services;
+namespace FGMisje.Services;
 
 public class DatabaseService
 {

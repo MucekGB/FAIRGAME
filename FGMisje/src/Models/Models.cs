@@ -1,4 +1,4 @@
-namespace CS2MissionsPlugin.Models;
+namespace FGMisje.Models;
 
 public enum MissionType
 {

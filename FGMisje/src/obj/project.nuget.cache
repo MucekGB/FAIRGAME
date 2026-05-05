@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "/i9t8nSnI4fOyBsI+79YonGI/L6bIEF0IzVBuasyyWn+yjDXyN8fr7syI9rPeDzD6s7tL96wG9ZDU5NR+S5DJg==",
+  "dgSpecHash": "M7nf6UqVgfdue1UiNWoWpfpT4LbHQdzwC3F2cZLjuSvA/0+fx8ohAVzL/Jis/ZTAZgCDw+ObP9qXSzsfEuFb+Q==",
   "success": true,
-  "projectFilePath": "/workspace/CS2MissionsPlugin/src/CS2MissionsPlugin.csproj",
+  "projectFilePath": "/workspace/FGMisje/src/FGMisje.csproj",
   "expectedPackageFiles": [
     "/root/.nuget/packages/counterstrikesharp.api/1.0.367/counterstrikesharp.api.1.0.367.nupkg.sha512",
     "/root/.nuget/packages/dapper/2.1.72/dapper.2.1.72.nupkg.sha512",

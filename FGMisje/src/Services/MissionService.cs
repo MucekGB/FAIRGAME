@@ -1,8 +1,7 @@
-using CS2MissionsPlugin.Models;
-using CounterStrikeSharp.API.Core;
+using FGMisje.Models;
 using Microsoft.Extensions.Logging;
 
-namespace CS2MissionsPlugin.Services;
+namespace FGMisje.Services;
 
 public class MissionService
 {
